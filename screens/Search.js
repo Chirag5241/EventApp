@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Text, DateBox, View, StyleSheet, SafeAreaView, TextInput, FlatList, ImageBackground, TouchableWithoutFeedback, Image } from 'react-native';
-import styled from 'styled-components/native';
+import styled from "styled-components/native";
 import moment from 'moment';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 import { dummyData, FONTS, SIZES, COLORS, icons, images} from '../constants';
+import {Platform} from 'react-native'
 
 import events from '../constants/events.json'
 import { McText, McIcon, McAvatar} from '../components'

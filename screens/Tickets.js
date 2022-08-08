@@ -11,7 +11,7 @@ import { McText, McIcon, McAvatar} from '../components'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 
-const Tickets = ({ params }) => {
+const Tickets = ({ params, navigation }) => {
   
   const imageUri = "https://img.buzzfeed.com/buzzfeed-static/static/2022-04/12/19/asset/b96d474ef097/sub-buzz-418-1649792177-24.png" //+ "=s"+ (SIZES.width).toString()+ "-c"
   return (
@@ -20,7 +20,7 @@ const Tickets = ({ params }) => {
       colors = {['#252525', COLORS.black,'#350840', COLORS.black,'#006790']}
       start = {{x: 0, y: 0}}
       end = {{ x: 1, y: 1}}
-      style = {{padding:2, borderRadius: 20 }}>
+      style = {{padding:2}}>
     <SafeAreaView>
     <View style={styles.tempNav}>
       <SectionHeader>

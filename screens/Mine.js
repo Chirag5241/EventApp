@@ -3,6 +3,7 @@ import { Text, DateBox, View, StyleSheet, SafeAreaView, TextInput, FlatList, Ima
 import styled from 'styled-components/native';
 import moment from 'moment';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import {Platform} from "react-native";
 
 import { dummyData, FONTS, SIZES, COLORS, icons, images} from '../constants';
 
