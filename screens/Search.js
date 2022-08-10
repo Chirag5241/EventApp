@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Text, DateBox, View, StyleSheet, SafeAreaView, TextInput, FlatList, ImageBackground, TouchableWithoutFeedback, Image } from 'react-native';
-import styled from "styled-components/native";
+import {Platform, Text, DateBox, View, StyleSheet, SafeAreaView, TextInput, FlatList, ImageBackground, TouchableWithoutFeedback, Image } from 'react-native';
+import styled from 'styled-components/native';
 import moment from 'moment';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -43,7 +43,8 @@ import Fuse from 'fuse.js'
         'key',
         'title',
         'startingTime',
-        'location'
+        'location',
+        'tagList'
       ]
     });
 
@@ -168,7 +169,7 @@ const TxtBox = styled.View`
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: COLORS.black,
     justifyContent: 'center',
     alignItems: 'center',
   },

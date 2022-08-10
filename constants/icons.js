@@ -12,7 +12,10 @@ const home = require('../assets/icons/home.png');
 const tab_4 = require('../assets/icons/person.png');
 const location = require('../assets/icons/location.png')
 const event = require('../assets/icons/event.png')
+const friend_add = require('../assets/icons/friend_add.png')
 const check = require('../assets/icons/check.png')
+const settings = require('../assets/icons/settings.png')
+const visibility = require('../assets/icons/visibility.png')
 
 export default {
   back_arrow,
@@ -30,4 +33,7 @@ export default {
   tab_4,
   location,
   check,
+  friend_add,
+  settings,
+  visibility
 };

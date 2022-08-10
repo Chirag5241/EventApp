@@ -5,7 +5,7 @@
 
  */
 import React, {useState, useEffect, useCallback} from 'react';
-import { Linking, Text, View, StyleSheet, ScrollView, ImageBackground, Platform, TouchableOpacity } from 'react-native';
+import { Image, Linking, Text, View, StyleSheet, ScrollView, ImageBackground, Platform, TouchableOpacity } from 'react-native';
 //import LinearGradient from 'react-native-linear-gradient';
 import { VERTICAL } from 'react-native/Libraries/Components/ScrollView/ScrollViewContext';
 import styled from 'styled-components/native';
@@ -53,10 +53,10 @@ const EventDetail = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
        <LinearGradient
-      colors = {['#252525', COLORS.black,COLORS.black,'#003060']}
-      start = {{x: 0, y: 0}}
-      end = {{ x: 1, y: 1}}
-      style = {{padding:2, borderRadius: 20 }}>
+          colors = {[ COLORS.black,COLORS.trueBlack,'#003060']}
+          start = {{x: 0, y: 0}}
+          end = {{ x: 1, y: 1}}
+          style = {{padding:2, borderRadius: 20 }}>
       <ScrollView 
       contentContainerStyle={{
         backgroundColor: 'transparent'
@@ -137,7 +137,7 @@ const EventDetail = ({ navigation, route }) => {
                     <McText body4 style={{opacity: 0.5, letterSpacing: 2 }}>
                       {selectedEvent?.type}
                       </McText>
-                    <McText h1 style={{width: width * 0.7}}>{selectedEvent?.title}</McText>
+                    <McText h1 numberOfLines={2} style={{width: width * 0.7}}>{selectedEvent?.title}</McText>
                     <McText body4 style={{opacity: 0.5, letterSpacing: 1.5 }}>
                       STARTING {moment(selectedEvent?.startingTime).format('hh:mm A')}
                     </McText>
@@ -214,7 +214,6 @@ const EventDetail = ({ navigation, route }) => {
                 console.log(uri + ' Chirag is idiot')
                 }}>
               <McText h4 style={{
-                opacity: 0.8,
                 letterSpacing: 1,
                 textTransform: 'uppercase',
                 marginTop: -1, 
@@ -225,23 +224,6 @@ const EventDetail = ({ navigation, route }) => {
               </McText>
               </TouchableWithoutFeedback>
           </LocationSection>
-          <OwnerSection>
-
-            <McIcon source ={icons.tab_4} size={20} style={{
-              margin:4,
-              tintColor: COLORS.gray1
-            }}/>
-            <McText h4 numberOfLines={1} style={{
-              opacity: 0.8,
-              letterSpacing: 1,
-              textTransform: 'uppercase' 
-              }} onPress={()=>{
-                navigation.navigate('OrganizationDetail', {selectedEvent: selectedEvent})
-              }}>{selectedEvent?.title}
-            </McText>
-
-        </OwnerSection>
-    
         <DescriptionSection>
           <View style={{
                   marginLeft: 12,
@@ -264,8 +246,30 @@ const EventDetail = ({ navigation, route }) => {
               }
           </View>
         </DescriptionSection>
+        <OwnerSection>
+          <TouchableWithoutFeedback style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} onPress={()=>{
+                navigation.navigate('OrganizationDetail', {selectedEvent: selectedEvent})
+              }}>
+          <Image
+                style={styles.orgProfilePic}
+                source={{
+                    uri:selectedEvent?.image
+                }}/>
+            <McText h4 numberOfLines={1} style={{
+              letterSpacing: 1,
+              textTransform: 'uppercase',
+              width: width/1.25
+              }}>{selectedEvent?.title}
+            </McText>
+            </TouchableWithoutFeedback>
+        </OwnerSection>
+    
         <VisibilitySec>
-        <McIcon source ={icons.tab_4} size={16} style={{
+        <McIcon source ={icons.visibility} size={16} style={{
               margin:8,
               tintColor: COLORS.gray1
             }}/>
@@ -279,10 +283,17 @@ const EventDetail = ({ navigation, route }) => {
             </McText>
           </View>
         </VisibilitySec>
+        <SectionFooter><McText h1 style={{
+        //temp fix for padding
+        color:'transparent'
+      }}>hello</McText></SectionFooter>
         
       </ScrollView>
         <View style={styles.otherContainer}>
           <UserOptionsSection>
+          <View style={{
+              alignItems: 'center'
+            }}>
               <TouchableOpacity style={{
                       width: 60,
                       height: 60,
@@ -294,12 +305,19 @@ const EventDetail = ({ navigation, route }) => {
                       alignItems: 'center'
                       }}
                       onPress={()=>{
-                console.log("Chirag's an idiot")
-              }}>
+                        console.log("Like")
+                      }}>
                 <McIcon source={icons.like} size={32} style={{
               tintColor:COLORS.gray,
             }}/>
+            
             </TouchableOpacity>
+            <McText body3>Like
+            </McText>
+            </View>
+            <View style={{
+              alignItems: 'center'
+            }}>
             <TouchableOpacity style={{
                       width: 60,
                       height: 60,
@@ -326,6 +344,12 @@ const EventDetail = ({ navigation, route }) => {
               marginHorizontal: 44
             }}/>
             </TouchableOpacity>
+            <McText body3>Join
+            </McText>
+            </View>
+            <View style={{
+              alignItems: 'center'
+            }}>
             <TouchableOpacity style={{
                       width: 60,
                       height: 60,
@@ -336,12 +360,14 @@ const EventDetail = ({ navigation, route }) => {
                       justifyContent: 'center',
                       alignItems: 'center'
                       }} onPress={()=>{
-                console.log("Chirag may be an idiot")
-              }}>
+                        console.log("ShoutOut")
+                      }}>
                 <McIcon source={icons.shoutout} size={32} style={{
               tintColor:COLORS.gray,
             }}/>
             </TouchableOpacity>
+            <McText body3> ShoutOut</McText>
+            </View>
           </UserOptionsSection>
         </View>
       </LinearGradient>
@@ -389,13 +415,17 @@ const DescriptionSection = styled.View`
 
 const UserOptionsSection = styled.View`
   flex: 1;
-  margin-horizontal: 10px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   `;
 
-
+//temp fix for padding
+const SectionFooter = styled.View`
+  background-color: transparent;
+  padding: 40px;
+  justify-content: space-between;
+`;
 
 const LocationSection = styled.View`
   flex-direction: row;
@@ -408,7 +438,7 @@ const LocationSection = styled.View`
 const OwnerSection = styled.View`
   flex-direction: row;
   marginHorizontal: 16px;
-  marginBottom: 8px;
+  marginTop: 12px;
   borderRadius: 10;
   align-items: center;
 `;
@@ -441,14 +471,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 1,
     width: width,
-    height: 100,
-    paddingBottom: 24,
-    padding: 12,
+    height: height/7.9,
+    paddingTop: 2,
     justifyContent: 'center',
     backgroundColor: COLORS.input,
     opacity: 0.97,
     alignSelf: 'stretch'
-  }
+  },
+  orgProfilePic: {
+    height: 35,
+    width: 35,
+    borderRadius: 30,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default memo(EventDetail);
