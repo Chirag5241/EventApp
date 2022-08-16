@@ -8,7 +8,7 @@ const { Result } = require("neo4j-driver-core");
 var session = require("express-session"); // need to install
 
 var app = express();
-var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 8080;
 
 // View Engine
 app.set("views", path.join(__dirname, "views"));
