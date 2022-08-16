@@ -23,8 +23,9 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var jsonParser = bodyParser.json();
 
 var driver = neo4j.driver(
-  "neo4j+s://bff6d1fc.databases.neo4j.io",
-  neo4j.auth.basic("neo4j", "57yuB7Ts5UL1Ajbggx9kVLoovrIiHwAI0NZ1Veu2_I0")
+  process.env.HOST,
+  neo4j.auth.basic(process.env.USER, process.env.PASSWORD)
+  // "neo4j+s://bff6d1fc.databases.neo4j.io", "neo4j", "57yuB7Ts5UL1Ajbggx9kVLoovrIiHwAI0NZ1Veu2_I0"
 );
 var connection = driver.session();
 
