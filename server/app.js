@@ -519,7 +519,7 @@ app.get("/data", function (req, res) {
 app.get("/search", function (req, res) {
   connection
     .run(
-      'match (n:Event)-[:tags]->(inte:Interest)  with n, collect(inte.name) as int_list Where n.startingTime contains "2022" return ID(n), (n), int_list order by n.startingTime desc limit 25'
+      'match (n:Event)-[:tags]->(inte:Interest)  with n, collect(inte.name) as int_list Where n.startingTime contains "2022" return ID(n), (n), int_list order by n.startingTime desc limit 600'
     )
     .then(function (result) {
       var EventArr = [];
