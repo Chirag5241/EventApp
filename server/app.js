@@ -36,6 +36,18 @@ app.use(
   })
 );
 
+app.get("/privacy_policy", function (req, res) {
+  const fs = require("fs");
+  // try {
+  const data = fs.readFileSync("message.txt", "utf8");
+  console.log(data);
+  // } catch (err) {
+  //   console.error(err);
+  // }
+  console.error("printing privacy policy");
+  res.send(data);
+});
+
 app.post("/user_login", jsonParser, (req, res) => {
   var userId = req.body.username;
   var pass = req.body.password;
