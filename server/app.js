@@ -8,7 +8,7 @@ const { Result } = require("neo4j-driver-core");
 var session = require("express-session"); // need to install
 
 var app = express();
-var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 8080;
 
 // View Engine
 app.set("views", path.join(__dirname, "views"));
@@ -23,8 +23,8 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var jsonParser = bodyParser.json();
 
 var driver = neo4j.driver(
-  "neo4j+s://bff6d1fc.databases.neo4j.io",
-  neo4j.auth.basic("neo4j", "57yuB7Ts5UL1Ajbggx9kVLoovrIiHwAI0NZ1Veu2_I0")
+  process.env.HOST,
+  neo4j.auth.basic(process.env.USER, process.env.PASSWORD)
 );
 var connection = driver.session();
 
