@@ -8,7 +8,7 @@ const { Result } = require("neo4j-driver-core");
 var session = require("express-session"); // need to install
 
 var app = express();
-var PORT = process.env.PORT || 8080;
+var PORT = process.env.PORT || 3000;
 
 // View Engine
 app.set("views", path.join(__dirname, "views"));
@@ -23,9 +23,8 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var jsonParser = bodyParser.json();
 
 var driver = neo4j.driver(
-  process.env.HOST,
-  neo4j.auth.basic(process.env.USER, process.env.PASSWORD)
-  // "neo4j+s://bff6d1fc.databases.neo4j.io", "neo4j", "57yuB7Ts5UL1Ajbggx9kVLoovrIiHwAI0NZ1Veu2_I0"
+  "neo4j+s://bff6d1fc.databases.neo4j.io",
+  neo4j.auth.basic("neo4j", "57yuB7Ts5UL1Ajbggx9kVLoovrIiHwAI0NZ1Veu2_I0")
 );
 var connection = driver.session();
 
@@ -65,12 +64,11 @@ app.post("/user_login", jsonParser, (req, res) => {
         if (req.session) {
           sess.email = result.records[0].get("u").properties.email;
           sess.name = result.records[0].get("u").properties.name;
-          sess.phone = result.records[0].get("u").properties.phone;
+          // sess.phone = result.records[0].get("u").properties.phone;
           sess.username = result.records[0].get("u").properties.username;
           // res.write(`<h1>Hello ${sess.email} h1><br>`);
           var user = {
             name: sess.name,
-            phone: sess.phone,
             username: sess.username,
             email: sess.email,
           };
@@ -78,6 +76,55 @@ app.post("/user_login", jsonParser, (req, res) => {
           res.send(JSON.stringify(user));
           res.end();
         }
+      }
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+app.post("/create_user", jsonParser, (req, res) => {
+  var name0 = req.body.name;
+  var username = req.body.username;
+  var email = req.body.email;
+  var pass = req.body.password;
+  console.log("Create user", username);
+  connection
+    .run("MATCH (u:User {ID: $username}) RETURN u", {
+      username: username,
+    })
+    .then(function (result) {
+      if (!_.isEmpty(result.records)) {
+        res.end();
+      } else {
+        connection
+          .run(
+            "Create (u:User {ID: $username, username: $username, email:$email, name:$name0, password:$pass}) Return u",
+            {
+              username: username,
+              name0: name0,
+              email: email,
+              pass: pass,
+            }
+          )
+          .then(function (result) {
+            sess = req.session;
+            // console.log(sess.email);
+
+            if (req.session) {
+              sess.email = email; //result.records[0].get("u").properties.email;
+              sess.name = name0; //result.records[0].get("u").properties.name;
+              sess.username = username; //result.records[0].get("u").properties.username;
+              // res.write(`<h1>Hello ${sess.email} h1><br>`);
+              var user = {
+                name: sess.name,
+                username: sess.username,
+                email: sess.email,
+              };
+              res.send(JSON.stringify(user));
+            }
+            res.end();
+          });
       }
     })
     .catch(function (err) {
@@ -123,11 +170,15 @@ app.post("/log", jsonParser, (req, res) => {
 app.post("/feat", jsonParser, (req, res) => {
   // res.send("POST Request Called")
   // var inp_type = req.body.user;
-  if (req.session) {
-    var inp_type = sess.username; // if session
-  } else {
-    var inp_type = "user_1";
-  }
+
+  // if (req.session) {
+  //   var inp_type = sess.username; // if session
+  // } else {
+  //   var inp_type = "user_1";
+  // }
+
+  var inp_type = "user_1";
+
   console.log("POST req on", inp_type);
   connection
     .run(
@@ -353,6 +404,7 @@ app.post("/feat", jsonParser, (req, res) => {
             title: event[1].properties.Name,
             userID: event[1].properties.CreatorID,
             //type: record._fields[1].properties.type,
+            visibility: event[1].properties.Visibility,
             startingTime: event[1].properties.startingTime,
             image: event[1].properties.Image,
             description: event[1].properties.Description,
@@ -381,7 +433,7 @@ app.post("/feat", jsonParser, (req, res) => {
 
 app.post("/spotlight", jsonParser, (req, res) => {
   // res.send("POST Request Called")
-  var inp_type = req.body.user;
+  var inp_type = "user_1"; //req.body.user;
   console.log("POST req on", inp_type);
   connection
     .run(
@@ -394,13 +446,28 @@ app.post("/spotlight", jsonParser, (req, res) => {
         // console.log(record);
         EventArr.push({
           id: record._fields[0].low,
+          uniqueID: record._fields[1].properties.ID,
           title: record._fields[1].properties.Name,
+          userID: record._fields[1].properties.CreatorID,
           //type: record._fields[1].properties.type,
           startingTime: record._fields[1].properties.startingTime,
+          visibility: record._fields[1].properties.Visibility,
           image: record._fields[1].properties.Image,
           description: record._fields[1].properties.Description,
           location: record._fields[1].properties.Location,
           taglist: record._fields[2],
+          // joined: event[3].low,
+          // liked: event[4].low,
+          // shouted: event[5].low,
+
+          // id: record._fields[0].low,
+          // title: record._fields[1].properties.Name,
+          // //type: record._fields[1].properties.type,
+          // startingTime: record._fields[1].properties.startingTime,
+          // image: record._fields[1].properties.Image,
+          // description: record._fields[1].properties.Description,
+          // location: record._fields[1].properties.Location,
+          // taglist: record._fields[2],
         });
         console.log(record._fields[0].low);
       });
@@ -459,14 +526,26 @@ app.get("/search", function (req, res) {
       result.records.forEach(function (record) {
         console.log(record);
         EventArr.push({
+          // id: record._fields[0].low,
+          // title: record._fields[1].properties.Name,
+          // //type: record._fields[1].properties.type,
+          // startingTime: record._fields[1].properties.startingTime,
+          // visibility: record._fields[1].properties.visibility,
+          // location: record._fields[1].properties.Location,
+          // image: record._fields[1].properties.Image,
+          // description: record._fields[1].properties.Description,
+          // taglist: record._fields[2],
+
           id: record._fields[0].low,
+          uniqueID: record._fields[1].properties.ID,
           title: record._fields[1].properties.Name,
+          userID: record._fields[1].properties.CreatorID,
           //type: record._fields[1].properties.type,
           startingTime: record._fields[1].properties.startingTime,
-          visibility: record._fields[1].properties.visibility,
-          location: record._fields[1].properties.Location,
+          visibility: record._fields[1].properties.Visibility,
           image: record._fields[1].properties.Image,
           description: record._fields[1].properties.Description,
+          location: record._fields[1].properties.Location,
           taglist: record._fields[2],
 
           // description: record._fields[1].properties.description,
@@ -600,7 +679,7 @@ app.post("/organization_events", jsonParser, (req, res) => {
           //type: record._fields[1].properties.type,
           startingTime: record._fields[1].properties.startingTime,
           userID: record._fields[1].properties.CreatorID,
-          visibility: record._fields[1].properties.visibility,
+          visibility: record._fields[1].properties.Visibility,
           location: record._fields[1].properties.Location,
           image: record._fields[1].properties.Image,
           description: record._fields[1].properties.Description,
