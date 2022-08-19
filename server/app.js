@@ -1003,6 +1003,80 @@ app.post("/delete_attending", jsonParser, (req, res) => {
     });
 });
 
+app.post("/organization_list", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+
+  console.log("Org List POST req on", inp_type);
+  connection
+    .run(
+      `MATCH (n:Organization)-[:Created]-(e:Event)
+      with n, count(e) as enum
+      RETURN n
+      order by enum desc
+      limit 15`
+    )
+    .then(function (result) {
+      var EventArr = [];
+      result.records.forEach(function (record) {
+        console.log(record);
+        EventArr.push({
+          id: result.records[0]._fields[0].low,
+          name: result.records[0]._fields[1].properties.Name,
+          image: result.records[0]._fields[1].properties.Image,
+        });
+      });
+      console.log(EventArr);
+      // res.setHeader('Content-Type', 'text/html');
+      res.send(JSON.stringify(EventArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+app.post("/interest_events", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  var inp_type = req.body.id;
+  console.log("Org Events POST req on", inp_type);
+  connection
+    .run(
+      `MATCH (n:Interest{name:$id})-[:tags]-(e:Event)
+      optional match (e)-[:tags]-(inte:Interest)
+      with n, e, collect(inte.name) as intlist
+      RETURN ID(e), e, intlist
+      order by e.startingTime desc
+      limit 50`,
+      { id: inp_type }
+    )
+    .then(function (result) {
+      var EventArr = [];
+      result.records.forEach(function (record) {
+        console.log(record);
+        EventArr.push({
+          id: record._fields[0].low,
+          title: record._fields[1].properties.Name,
+          //type: record._fields[1].properties.type,
+          startingTime: record._fields[1].properties.startingTime,
+          userID: record._fields[1].properties.CreatorID,
+          visibility: record._fields[1].properties.visibility,
+          location: record._fields[1].properties.Location,
+          image: record._fields[1].properties.Image,
+          description: record._fields[1].properties.Description,
+          taglist: record._fields[2],
+          // description: record._fields[1].properties.description,
+        });
+      });
+      console.log(EventArr);
+      // res.setHeader('Content-Type', 'text/html');
+      res.send(JSON.stringify(EventArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
 app.listen(PORT);
 console.log("Server listening on PORT", PORT);
 
