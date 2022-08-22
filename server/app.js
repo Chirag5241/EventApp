@@ -251,18 +251,18 @@ app.post("/feat", jsonParser, (req, res) => {
           return collect([id(er), er, ittlist, att, lik, shut]) as ee, collect(id(er)) as eeid
       }
       
-      with ss, mm, ["Followed", ee] as loe, eeid + pk as pk
+      with ss, mm, ["Past Events", ee] as loe, eeid + pk as pk
       
       call{
           with ss, pk
           match(e:Event)-[:tags]-(tt:Interest)
-          where e.startingTime contains '2022/08' AND not id(e) in pk
+          where e.startingTime contains '2022' AND not id(e) in pk
           with e, apoc.map.get(ss, tt.name, 0) as intscore, tt
           with e, reduce (s=0, x in collect(intscore)| s + x) as try, collect(tt.name) as tt
           order by try desc
           with e.Name as nme, collect(e)[0] as e, collect(tt)[0] as tt
           return e, tt
-          limit 20
+          limit 30
       }
     
     // return e.Name, tt
@@ -291,7 +291,7 @@ app.post("/feat", jsonParser, (req, res) => {
       with ret, pk, collect(m) as mm
     
       optional match (m:Interest {name: mm[0].name})-[:tags]-(e:Event)
-      where e.startingTime contains '2022/08' AND not id(e) in pk
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
       with ret, pk, mm, e 
       order by e.startingTime desc
       limit 15
@@ -313,7 +313,7 @@ app.post("/feat", jsonParser, (req, res) => {
       with pk, mm, ret + collect([mm[0].name, intr1]) as ret
     
       optional match (m:Interest {name: mm[1].name})-[:tags]-(e:Event)
-      where e.startingTime contains '2022/08' AND not id(e) in pk
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
       with ret, pk, mm, e 
       order by e.startingTime desc
       limit 15
@@ -335,7 +335,7 @@ app.post("/feat", jsonParser, (req, res) => {
       with pk, mm, ret + collect([mm[1].name, intr1]) as ret
     
       optional match (m:Interest {name: mm[2].name})-[:tags]-(e:Event)
-      where e.startingTime contains '2022/08' AND not id(e) in pk
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
       with ret, pk, mm, e 
       order by e.startingTime desc
       limit 15
@@ -357,7 +357,7 @@ app.post("/feat", jsonParser, (req, res) => {
       with pk, mm, ret + collect([mm[2].name, intr1]) as ret
     
       optional match (m:Interest {name: mm[3].name})-[:tags]-(e:Event)
-      where e.startingTime contains '2022/08' AND not id(e) in pk
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
       with ret, pk, mm, e 
       order by e.startingTime desc
       limit 15
@@ -379,7 +379,7 @@ app.post("/feat", jsonParser, (req, res) => {
       with pk, mm, ret + collect([mm[3].name, intr1]) as ret
     
       optional match (m:Interest {name: mm[4].name})-[:tags]-(e:Event)
-      where e.startingTime contains '2022/08' AND not id(e) in pk
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07')  AND not id(e) in pk
       with ret, pk, mm, e 
       order by e.startingTime desc
       limit 15
@@ -453,7 +453,7 @@ app.post("/spotlight", jsonParser, (req, res) => {
   console.log("POST req on", inp_type);
   connection
     .run(
-      'match (e)-[:tags]->(inte:Interest) with e, collect(inte.name) as int_list Where e.startingTime contains "2022" and e.ID contains "uiuc_quad_day" return ID(e),e,int_list limit 5',
+      'match (e)-[:tags]->(inte:Interest) with e, collect(inte.name) as int_list Where e.startingTime contains "2022" and e.ID contains "uiuc_quad_day" return ID(e),e,int_list limit 10',
       { name: inp_type }
     )
     .then(function (result) {
@@ -484,6 +484,36 @@ app.post("/spotlight", jsonParser, (req, res) => {
           // description: record._fields[1].properties.Description,
           // location: record._fields[1].properties.Location,
           // taglist: record._fields[2],
+        });
+        console.log(record._fields[0].low);
+      });
+      // console.log(JSON.stringify(EventArr));
+      // res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(EventArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+app.post("/feat_orgs", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  var inp_type = "user_1"; //req.body.user;
+  console.log("POST req on", inp_type);
+  connection
+    .run("match (org:Organization) return ID(org), org limit 20", {
+      name: inp_type,
+    })
+    .then(function (result) {
+      var EventArr = [];
+      result.records.forEach(function (record) {
+        // console.log(record);
+        EventArr.push({
+          id: record._fields[0].low,
+          uniqueID: record._fields[1].properties.ID,
+          title: record._fields[1].properties.Name,
+          image: record._fields[1].properties.Image,
         });
         console.log(record._fields[0].low);
       });
@@ -535,7 +565,7 @@ app.get("/data", function (req, res) {
 app.get("/search", function (req, res) {
   connection
     .run(
-      'match (n:Event)-[:tags]->(inte:Interest)  with n, collect(inte.name) as int_list Where n.startingTime contains "2022" return ID(n), (n), int_list order by n.startingTime desc limit 1000'
+      'match (n:Event)-[:tags]->(inte:Interest)  with n, collect(inte.name) as int_list Where n.startingTime contains "2022/08" or n.startingTime contains "2022/09" or n.startingTime contains "2022/07" or n.startingTime contains "2022/10" or n.startingTime contains "2022/09"  return ID(n), (n), int_list order by n.startingTime desc limit 1000'
     )
     .then(function (result) {
       var EventArr = [];
