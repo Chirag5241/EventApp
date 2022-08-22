@@ -677,70 +677,74 @@ app.post("/organization_details", jsonParser, (req, res) => {
   // res.send("POST Request Called")
   var inp_type = req.body.id;
   console.log("Org Events POST req on", inp_type);
-  connection
-    .run(
-      `match (org:Organization)
+  if (inp_type !== null) {
+    connection
+      .run(
+        `match (org:Organization)
         where org.ID contains $id
         return ID(org), org`,
-      { id: inp_type }
-    )
-    .then(function (result) {
-      var EventArr = {
-        id: result.records[0]._fields[0].low,
-        name: result.records[0]._fields[1].properties.Name,
-        image: result.records[0]._fields[1].properties.Image,
-        // description: record._fields[1].properties.description,
-      };
-      console.log(EventArr);
-      // res.setHeader('Content-Type', 'text/html');
-      res.send(JSON.stringify(EventArr));
-      res.end();
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
+        { id: inp_type }
+      )
+      .then(function (result) {
+        var EventArr = {
+          id: result.records[0]._fields[0].low,
+          name: result.records[0]._fields[1].properties.Name,
+          image: result.records[0]._fields[1].properties.Image,
+          // description: record._fields[1].properties.description,
+        };
+        console.log(EventArr);
+        // res.setHeader('Content-Type', 'text/html');
+        res.send(JSON.stringify(EventArr));
+        res.end();
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
 });
 
 app.post("/organization_events", jsonParser, (req, res) => {
   // res.send("POST Request Called")
   var inp_type = req.body.id;
   console.log("Org Events POST req on", inp_type);
-  connection
-    .run(
-      `match (org:Organization)-[:Created]->(n:Event), (n)-[:tags]->(inte:Interest)
+  if (inp_type !== null) {
+    connection
+      .run(
+        `match (org:Organization)-[:Created]->(n:Event), (n)-[:tags]->(inte:Interest)
         with org, n, collect(inte.name) as int_list
         where org.ID contains $id
         return ID(n),n, int_list
         order by n.startingTime desc
         limit 50`,
-      { id: inp_type }
-    )
-    .then(function (result) {
-      var EventArr = [];
-      result.records.forEach(function (record) {
-        console.log(record);
-        EventArr.push({
-          id: record._fields[0].low,
-          title: record._fields[1].properties.Name,
-          //type: record._fields[1].properties.type,
-          startingTime: record._fields[1].properties.startingTime,
-          userID: record._fields[1].properties.CreatorID,
-          visibility: record._fields[1].properties.Visibility,
-          location: record._fields[1].properties.Location,
-          image: record._fields[1].properties.Image,
-          description: record._fields[1].properties.Description,
-          taglist: record._fields[2],
-          // description: record._fields[1].properties.description,
+        { id: inp_type }
+      )
+      .then(function (result) {
+        var EventArr = [];
+        result.records.forEach(function (record) {
+          console.log(record);
+          EventArr.push({
+            id: record._fields[0].low,
+            title: record._fields[1].properties.Name,
+            //type: record._fields[1].properties.type,
+            startingTime: record._fields[1].properties.startingTime,
+            userID: record._fields[1].properties.CreatorID,
+            visibility: record._fields[1].properties.Visibility,
+            location: record._fields[1].properties.Location,
+            image: record._fields[1].properties.Image,
+            description: record._fields[1].properties.Description,
+            taglist: record._fields[2],
+            // description: record._fields[1].properties.description,
+          });
         });
+        console.log(EventArr);
+        // res.setHeader('Content-Type', 'text/html');
+        res.send(JSON.stringify(EventArr));
+        res.end();
+      })
+      .catch(function (err) {
+        console.log(err);
       });
-      console.log(EventArr);
-      // res.setHeader('Content-Type', 'text/html');
-      res.send(JSON.stringify(EventArr));
-      res.end();
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
+  }
 });
 
 app.post("/delete_user_interest", jsonParser, (req, res) => {
