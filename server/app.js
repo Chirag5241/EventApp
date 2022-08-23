@@ -527,6 +527,83 @@ app.post("/feat_orgs", jsonParser, (req, res) => {
     });
 });
 
+app.post("/categories", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  var inp_type = "user_1"; //req.body.user;
+  console.log("POST req on", inp_type);
+  connection
+    .run(
+      `match (i:Interest)<-[:tags]-(e:Event)
+      with distinct(i) as int
+      return ID(int), int 
+      limit 30`,
+      {
+        name: inp_type,
+      }
+    )
+    .then(function (result) {
+      var EventArr = [];
+      result.records.forEach(function (record) {
+        // console.log(record);
+        EventArr.push({
+          id: record._fields[0].low,
+          category: record._fields[1].properties.category,
+          name: record._fields[1].properties.name,
+        });
+        console.log(record._fields[0].low);
+      });
+      // console.log(JSON.stringify(EventArr));
+      // res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(EventArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+app.post("/interest_events", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  var inp_type = req.body.id;
+  console.log("Org Events POST req on", inp_type);
+  session
+    .run(
+      `match (it:Interest {name :  $id})-[:tags]-(n:Event)
+          with n
+          order by n.startingTime desc
+          limit 50
+          optional match (n)-[:tags]-(itt:Interest)
+          with n, collect(itt.name) as ittlist
+          return id(n), n, ittlist`,
+      { id: inp_type }
+    )
+    .then(function (result) {
+      var EventArr = [];
+      result.records.forEach(function (record) {
+        console.log(record);
+        EventArr.push({
+          id: record._fields[0].low,
+          title: record._fields[1].properties.Name,
+          //type: record._fields[1].properties.type,
+          startingTime: record._fields[1].properties.startingTime,
+          visibility: record._fields[1].properties.visibility,
+          location: record._fields[1].properties.Location,
+          image: record._fields[1].properties.Image,
+          description: record._fields[1].properties.Description,
+          interest_list: record._fields[3],
+          // description: record._fields[1].properties.description,
+        });
+      });
+      console.log(EventArr);
+      // res.setHeader('Content-Type', 'text/html');
+      res.send(JSON.stringify(EventArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
 app.get("/data", function (req, res) {
   connection
     .run(
