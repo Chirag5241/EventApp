@@ -453,7 +453,7 @@ app.post("/spotlight", jsonParser, (req, res) => {
   console.log("POST req on", inp_type);
   connection
     .run(
-      'match (e)-[:tags]->(inte:Interest) with e, collect(inte.name) as int_list Where e.startingTime contains "2022" return ID(e),e,int_list limit 10',
+      'match (e)-[:tags]->(inte:Interest) with e, collect(inte.name) as int_list Where e.startingTime contains "2022/08" return ID(e),e,int_list limit 10',
       { name: inp_type }
     )
     .then(function (result) {
@@ -550,7 +550,7 @@ app.post("/categories", jsonParser, (req, res) => {
           id: record._fields[0].low,
           category: record._fields[1].properties.category,
           name: record._fields[1].properties.name,
-          event_count: record._fields[2].properties.event_count,
+          // event_count: record._fields[2].properties.event_count,
         });
         console.log(record._fields[0].low);
       });
