@@ -568,7 +568,7 @@ app.post("/interest_events", jsonParser, (req, res) => {
   // res.send("POST Request Called")
   var inp_type = req.body.id;
   console.log("Org Events POST req on", inp_type);
-  session
+  connection
     .run(
       `match (it:Interest {name :  $id})-[:tags]-(n:Event)
           with n
