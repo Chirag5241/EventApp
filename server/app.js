@@ -311,6 +311,210 @@ call{
             joined: event[3].low,
             liked: event[4].low,
             shouted: event[5].low,
+            link: null,
+          });
+          //console.log(record._fields[0].low);
+        });
+        FinalArr.push({
+          header: record._fields[0],
+          data: EventArr,
+        });
+      });
+      //console.log(JSON.stringify(FinalArr));
+      //res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(FinalArr));
+      res.end();
+    })
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
+app.post("/categories_feat", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  // var inp_type = req.body.user;
+
+  // if (req.session) {
+  //   var inp_type = sess.username; // if session
+  // } else {
+  //   var inp_type = "user_1";
+  // }
+
+  var inp_type = "user_1";
+
+  console.log("POST req on", inp_type);
+  connection
+    .run(
+      `Match (m:Interest) 
+      Optional match (m)-[c:user_interest]-(u:User {ID : 'user_1'})
+      with m, u,
+      case
+          when (m)-[c]-(u) then 1
+          else 0
+      end as s1
+      with m, s1
+      Optional match (m)-[t:tags]-(:Event)-[:attending]-(u:User{ID : 'user_1'})
+      with m, s1, count(t) as s2
+      //Optional match (m)-[t:tags]-(:Event)-[:liked]-(u:User{ID : 'user_1'})
+      Optional match (u:User{ID : 'user_1'})-[:liked]-(:Event)-[t:tags]-(m)
+      with m, s1, s2, count(t) as s3
+      Optional match (u:User{ID : 'user_1'})-[:attending]-(:Event)-[:tags]-(:Interest)-[:tags]-(:Event)-[t:tags]-(m)
+      with m, s1, s2, s3, count(t) as s4
+      Optional match (u:User{ID : 'user_1'})-[:liked]-(:Event)-[:tags]-(:Interest)-[:tags]-(:Event)-[t:tags]-(m)
+      with m, s1, s2, s3, s4, count(t) as s5
+      Optional match (u:User{ID : 'user_1'})-[c:user_interest]-(:Interest)-[:tags]-(:Event)-[t:tags]-(m)
+      with m, s1, s2, s3, s4, s5, count(t) as s6
+      with m, [m.name, s1*10000+s2*1000+s3*500+s4/5+s5/6+s6/2] as s//, s1, s2, s3, s4, s5, s6
+      order by s[1] desc
+      with collect(m) as mm, apoc.map.fromPairs(collect(s)) as ss, [] as pk
+     
+        
+      unwind mm as m
+      optional match (m)-[:tags]-(e:Event)
+      with  pk, m, collect(id(e)) as ridempty
+      where not isEmpty(ridempty)
+      with pk, collect(m) as mm
+    
+      optional match (m:Interest {name: mm[0].name})-[:tags]-(e:Event)
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
+      with pk, mm, e 
+      order by e.startingTime desc
+      limit 15
+      optional match (e)-[:tags]-(tt:Interest)
+      with pk, mm, e, collect(tt.name) as ittlist,
+      case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+      with mm, collect([id(e), e, ittlist, att, lik, shut]) as intr1, collect(id(e)) + pk as pk
+      with pk, mm, collect([mm[0].name, intr1]) as ret
+    
+      optional match (m:Interest {name: mm[1].name})-[:tags]-(e:Event)
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
+      with ret, pk, mm, e 
+      order by e.startingTime desc
+      limit 15
+      optional match (e)-[:tags]-(tt:Interest)
+      with ret, pk, mm, e, collect(tt.name) as ittlist,
+      case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+      with ret, mm, collect([id(e), e, ittlist, att, lik, shut]) as intr1, collect(id(e)) + pk as pk
+      with pk, mm, ret + collect([mm[1].name, intr1]) as ret
+    
+      optional match (m:Interest {name: mm[2].name})-[:tags]-(e:Event)
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
+      with ret, pk, mm, e 
+      order by e.startingTime desc
+      limit 15
+      optional match (e)-[:tags]-(tt:Interest)
+      with ret, pk, mm, e, collect(tt.name) as ittlist,
+      case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+      with ret, mm, collect([id(e), e, ittlist, att, lik, shut]) as intr1, collect(id(e)) + pk as pk
+      with pk, mm, ret + collect([mm[2].name, intr1]) as ret
+    
+      optional match (m:Interest {name: mm[3].name})-[:tags]-(e:Event)
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07') AND not id(e) in pk
+      with ret, pk, mm, e 
+      order by e.startingTime desc
+      limit 15
+      optional match (e)-[:tags]-(tt:Interest)
+      with ret, pk, mm, e, collect(tt.name) as ittlist,
+      case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+      with ret, mm, collect([id(e), e, ittlist, att, lik, shut]) as intr1, collect(id(e)) + pk as pk
+      with pk, mm, ret + collect([mm[3].name, intr1]) as ret
+    
+      optional match (m:Interest {name: mm[4].name})-[:tags]-(e:Event)
+      where (e.startingTime contains '2022/08' or e.startingTime contains '2022/09' or e.startingTime contains '2022/07')  AND not id(e) in pk
+      with ret, pk, mm, e 
+      order by e.startingTime desc
+      limit 15
+      optional match (e)-[:tags]-(tt:Interest)
+      with ret, pk, mm, e, collect(tt.name) as ittlist,
+      case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+      with ret, mm, collect([id(e), e, ittlist, att, lik, shut]) as intr1, collect(id(e)) + pk as pk
+      with pk, mm, ret + collect([mm[4].name, intr1]) as ret
+      unwind ret as ret2
+      with ret2
+      where not isempty(ret2[1]) and ret2[1][1] <> 'null'
+      return ret2[0] as name, ret2[1] as events
+    //return ret2[0] as name`,
+      { userid: inp_type }
+    )
+    .then(function (result) {
+      var FinalArr = [];
+      result.records.forEach(function (record) {
+        var EventArr = [];
+        record._fields[1].forEach(function (event) {
+          //console.log(event)
+          //console.log(record);
+          EventArr.push({
+            //test: event[1].properties.Name
+            id: event[0].low,
+            uniqueID: event[1].properties.ID,
+            title: event[1].properties.Name,
+            userID: event[1].properties.CreatorID,
+            //type: record._fields[1].properties.type,
+            visibility: event[1].properties.Visibility,
+            startingTime: event[1].properties.startingTime,
+            image: event[1].properties.Image,
+            description: event[1].properties.Description,
+            location: event[1].properties.Location,
+            taglist: event[2],
+            joined: event[3].low,
+            liked: event[4].low,
+            shouted: event[5].low,
+            link: null,
           });
           //console.log(record._fields[0].low);
         });
