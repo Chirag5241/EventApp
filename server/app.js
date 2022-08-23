@@ -476,7 +476,7 @@ app.post("/interest_events", jsonParser, (req, res) => {
           location: record._fields[1].properties.Location,
           image: record._fields[1].properties.Image,
           description: record._fields[1].properties.Description,
-          taglist: record._fields[3],
+          taglist: record._fields[2], // its an optional match now so it may cause an ERROR in the future on the frontend
           // description: record._fields[1].properties.description,
         });
       });
