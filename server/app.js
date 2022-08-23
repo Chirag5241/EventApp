@@ -432,7 +432,7 @@ app.post("/categories", jsonParser, (req, res) => {
           id: record._fields[0].low,
           category: record._fields[1].properties.category,
           name: record._fields[1].properties.name,
-          event_count: record._fields[2],
+          event_count: record._fields[2].low,
         });
         console.log(record._fields[0].low);
       });
