@@ -534,9 +534,10 @@ app.post("/categories", jsonParser, (req, res) => {
   connection
     .run(
       `match (i:Interest)<-[:tags]-(e:Event)
-      with distinct(i) as int
-      return ID(int), int 
-      limit 30`,
+      with distinct(i) as int, count(e) as event_count
+      return ID(int), int, event_count
+      order by event_count desc
+      limit 20`,
       {
         name: inp_type,
       }
@@ -549,6 +550,7 @@ app.post("/categories", jsonParser, (req, res) => {
           id: record._fields[0].low,
           category: record._fields[1].properties.category,
           name: record._fields[1].properties.name,
+          event_count: record._fields[2].properties.event_count,
         });
         console.log(record._fields[0].low);
       });
