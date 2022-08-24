@@ -220,51 +220,50 @@ app.post("/feat", jsonParser, (req, res) => {
       with m, [m.name, s1*10000+s2*1000+s3*500+s4/5+s5/6+s6/2] as s//, s1, s2, s3, s4, s5, s6
       order by s[1] desc
       with collect(m) as mm, apoc.map.fromPairs(collect(s)) as ss, [] as pk
-call{
-          match(u:User{ID : 'user_1'})
-          optional match (u)-[:attending]-(e1:Event)
-          with u, collect(e1) as e1
-          //, collect(id(e1)) as e1id [id(e1), e1, ittlist]
-          optional match (u)-[:liked]-(e2:Event)
-          where not e2 in e1
-          //with u, e1, e2, collect(itt.name) as ittlist
-          with e1+collect(e2) as ee
-          unwind ee as er
-          with er
-          order by er.startingTime desc
-          optional match (er)-[:tags]-(itt:Interest)
-          with er, collect(itt.name) as ittlist
-          with er, ittlist,
-          case 
-            when (er)-[:attending]-(:User{ID : 'user_1'}) then 1
-            else 0
-          end as att,
-          case 
-            when (er)-[:liked]-(:User{ID : 'user_1'}) then 1
-            else 0
-          end as lik,
-          case 
-            when (er)-[:shoutout]-(:User{ID : 'user_1'}) then 1
-            else 0
-          end as shut
-          return collect([id(er), er, ittlist, att, lik, shut]) as ee, collect(id(er)) as eeid
-      }
-      
-      with ss, mm, ["Past Events", ee] as loe, eeid + pk as pk
-      
+
       call{
           with ss, pk
           match(e:Event)-[:tags]-(tt:Interest)
-          where e.startingTime contains '2022' AND not id(e) in pk
+          where date(datetime({epochmillis: apoc.date.parse(e.startingTime, "ms", "yyyy/MM/dd")})) < date() AND not id(e) in pk and e.startingTime contains '2022'
           with e, apoc.map.get(ss, tt.name, 0) as intscore, tt
           with e, reduce (s=0, x in collect(intscore)| s + x) as try, collect(tt.name) as tt
           order by try desc
           with e.Name as nme, collect(e)[0] as e, collect(tt)[0] as tt
+          with e.CreatorID as nme, collect(e)[0] as e, collect(tt)[0] as tt
           return e, tt
           limit 30
       }
     
     // return e.Name, tt
+        with mm, e, tt, pk, ss
+        order by e.startingTime desc
+        with mm, e, tt, pk, ss, 
+        case 
+            when (e)-[:attending]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as att,
+          case 
+            when (e)-[:liked]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as lik,
+          case 
+            when (e)-[:shoutout]-(:User{ID : 'user_1'}) then 1
+            else 0
+          end as shut
+        with mm, ["Past Events", collect([id(e), e, tt, att, lik, shut])] as loe, collect(id(e)) + pk as pk, ss
+      
+      call{
+          with ss, pk
+          match(e:Event)-[:tags]-(tt:Interest)
+          where date(datetime({epochmillis: apoc.date.parse(e.startingTime, "ms", "yyyy/MM/dd")})) >= date() AND not id(e) in pk
+          with e, apoc.map.get(ss, tt.name, 0) as intscore, tt
+          with e, reduce (s=0, x in collect(intscore)| s + x) as try, collect(tt.name) as tt
+          order by try desc
+          with e.CreatorID as nme, collect(e)[0] as e, collect(tt)[0] as tt
+          return e, tt
+          limit 30
+      }
+    
         with mm, loe, e, tt, pk
         order by e.startingTime desc
         with mm, loe, e, tt, pk, 
