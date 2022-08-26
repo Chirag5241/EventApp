@@ -220,7 +220,6 @@ app.post("/feat", jsonParser, (req, res) => {
       with m, [m.name, s1*10000+s2*1000+s3*500+s4/5+s5/6+s6/2] as s//, s1, s2, s3, s4, s5, s6
       order by s[1] desc
       with collect(m) as mm, apoc.map.fromPairs(collect(s)) as ss, [] as pk
-
       call{
           with ss, pk
           match(e:Event)-[:tags]-(tt:Interest)
@@ -776,6 +775,39 @@ app.get("/search", function (req, res) {
     });
   // console.log(result);
   // res.send(result);
+});
+
+app.get("/search_org", function (req, res) {
+  var inp_type = req.body.id;
+  console.log("Org Events POST req on", inp_type);
+  if (inp_type !== null) {
+    connection
+      .run(
+        `match (org:Organization)
+        return ID(org), org`,
+        { id: inp_type }
+      )
+      .then(function (result) {
+        var EventArr = [];
+        result.records.forEach(function (record) {
+          console.log(record);
+          EventArr.push({
+            id: result.records[0]._fields[0].low,
+            name: result.records[0]._fields[1].properties.Name,
+            image: result.records[0]._fields[1].properties.Image,
+            // description: record._fields[1].properties.description,
+          });
+          console.log(record._fields[0].low);
+        });
+        console.log(EventArr);
+        // res.setHeader('Content-Type', 'text/html');
+        res.send(JSON.stringify(EventArr));
+        res.end();
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
 });
 
 app.get("/interests", function (req, res) {
