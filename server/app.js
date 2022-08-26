@@ -727,6 +727,25 @@ app.get("/data", function (req, res) {
   // res.send(result);
 });
 
+app.post("/set_push_token", jsonParser, (req, res) => {
+  // res.send("POST Request Called")
+  var inp_type = req.body.id;
+  console.log("Org Events POST req on", inp_type);
+  connection
+    .run(
+      `MERGE (u:User {pushToken: $id} )
+      ON CREATE
+        SET u.pushToken = $id
+      ON MATCH
+        SET u.pushToken = $id`,
+      { id: inp_type }
+    )
+    .then(function (result) {})
+    .catch(function (err) {
+      console.log(err);
+    });
+});
+
 app.get("/search", function (req, res) {
   connection
     .run(
