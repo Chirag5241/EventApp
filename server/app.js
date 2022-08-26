@@ -537,12 +537,7 @@ app.post("/spotlight", jsonParser, (req, res) => {
   console.log("POST req on", inp_type);
   connection
     .run(
-      'match (e:Event)-[:tags]->(inte:Interest) 
-      where date(datetime({epochmillis: apoc.date.parse(e.startingTime, "ms", "yyyy/MM/dd")})) >= date()
-      with e, collect(inte.name) as int_list 
-      return ID(e),e,int_list 
-      order by e.startingTime
-      limit 20',
+      'match (e)-[:tags]->(inte:Interest) with e, collect(inte.name) as int_list Where e.startingTime contains "2022/08" return ID(e),e,int_list limit 10',
       { name: inp_type }
     )
     .then(function (result) {
