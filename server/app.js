@@ -778,23 +778,24 @@ app.get("/search", function (req, res) {
 });
 
 app.get("/search_org", function (req, res) {
-  var inp_type = req.body.id;
+  // var inp_type = req.body.id;
   console.log("Org Events POST req on", inp_type);
   if (inp_type !== null) {
     connection
       .run(
         `match (org:Organization)
-        return ID(org), org`,
-        { id: inp_type }
+        return ID(org), org`
+        // { id: inp_type }
       )
       .then(function (result) {
         var EventArr = [];
         result.records.forEach(function (record) {
           console.log(record);
           EventArr.push({
-            id: result.records[0]._fields[0].low,
-            name: result.records[0]._fields[1].properties.Name,
-            image: result.records[0]._fields[1].properties.Image,
+            id: record._fields[0].low,
+            OrgID: record._fields[1].properties.ID,
+            name: record._fields[1].properties.Name,
+            image: record._fields[1].properties.Image,
             // description: record._fields[1].properties.description,
           });
           console.log(record._fields[0].low);
